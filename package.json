@@ -1,0 +1,17 @@
+{
+  "name": "api-blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Este proyecto sera para desarrollar una api de blog",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
