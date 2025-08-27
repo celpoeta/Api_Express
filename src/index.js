@@ -11,7 +11,7 @@ const userPath = path.join('data', 'users.json');
 const app = express();
 
 // Definimos el puerto donde correrá el servidor
-const PORT = 3001;
+const PORT = 3010;
 
 // ---------------------- RUTAS ---------------------- //
 
@@ -31,7 +31,7 @@ app.get('/api/users', async (_req, res) => {
         // Convertimos el texto JSON a un arreglo de objetos JavaScript
         const users = JSON.parse(data);
 
-        // 👉 Cuando queremos responderle al cliente usamos "res."
+        // Cuando queremos responderle al cliente usamos "res."
         //    - "json(...)" envía un objeto JSON al cliente como respuesta.
         res.json(users);
     } catch (error) {
@@ -53,6 +53,11 @@ app.get('/api/users/:id', async (req, res) => {
 
         // Obtenemos el parámetro id de la URL y lo convertimos a número
         const userId = Number(req.params.id);
+
+        // Validamos si el parámetro id es un numero entero y mayor que 0, de lo contrario no es un valor valido
+        if (!Number.isInteger(userId) || userId < 1) {
+            return res.status(400).json({ error: 'El parámetro id deber ser un entero mayor a 0' });
+        }
 
         // Usamos el método .find() del array:
         // Este método recorre el arreglo y devuelve el PRIMER elemento que cumpla la condición indicada.
