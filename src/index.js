@@ -10,6 +10,9 @@ const userPath = path.join('data', 'users.json');
 // Creamos la aplicación de Express
 const app = express();
 
+// Middelware
+app.use(express.json());
+
 // Definimos el puerto donde correrá el servidor
 const PORT = 3010;
 
@@ -78,6 +81,63 @@ app.get('/api/users/:id', async (req, res) => {
     } catch (error) {
         // Capturamos cualquier error al leer el archivo
         console.error('Error al leer el archivo');
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// Ruta POST /api/users
+// Objetivo: crear un nuevo usuario y guardarlo en el archivo users.json
+app.post('/api/users', async (req, res) => {
+    try {
+        // Extraemos los datos enviados por el cliente desde el body (name y email)
+        // Notas:
+        // - 'name' se toma directamente.
+        // - 'email' se convierte a minúsculas para evitar duplicados por mayúsculas/minúsculas.
+        const name = req.body.name;
+        const email = req.body.email.toLowerCase();
+
+        // Leemos el archivo users.json
+        const data = await fs.readFile(userPath, 'utf8');
+
+        // Parseamos el contenido a un arreglo de usuarios
+        const users = JSON.parse(data);
+
+        // Verificamos si ya existe un usuario con el mismo email en la lista
+        // 'some' recorre el arreglo y devuelve true si encuentra coincidencia.
+        const emailExists = users.some(user => user.email === email);
+
+        // Si el email ya está registrado, se retorna un error 409 (Conflict)
+        if (emailExists) {
+            return res.status(409).json({ error: 'El email ya esta registrado' });
+        }
+
+        //Generamos un nuevo ID para el usuario:
+        // - Si el arreglo `users` tiene elementos (`users.length` es verdadero):
+        //   - Accedemos al último usuario registrado con `users[users.length - 1]`.
+        //   - Tomamos su ID (`.id`) y le sumamos 1 para obtener un nuevo ID incremental.
+        // - Si no hay ningún usuario (el arreglo está vacío):
+        //   - Asignamos directamente el ID 1 al primer usuario.
+        // Esto garantiza que cada usuario tenga un ID único y consecutivo.
+        const newId = users.length ? users[users.length - 1].id + 1 : 1;
+
+        // Creamos el nuevo objeto de usuario con ID, nombre y correo electrónico
+        const newUser = { id: newId, name, email };
+
+        // Agregamos el nuevo usuario al arreglo existente
+        users.push(newUser);
+
+        // Guardamos (reescribimos) el archivo users.json con la nueva lista de usuarios
+        // JSON.stringify(..., null, 2) se usa para dar formato legible al archivo (indentación de 2 espacios).
+        await fs.writeFile(userPath, JSON.stringify(users, null, 2));
+
+        // Respondemos con estado 201 (Created) y el usuario que fue creado
+        res.status(201).json({ message: 'Usuario creado con éxito', newUser });
+
+    } catch (error) {
+        // Si ocurre un error en cualquier parte del proceso (leer o escribir el archivo), lo capturamos aquí
+        console.error('Error al leer o escribir en el archivo');
+
+        // Enviamos una respuesta de error 500 (Internal Server Error)
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });

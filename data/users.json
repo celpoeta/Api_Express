@@ -1,12 +1,17 @@
 [
-    {
-        "id": 1,
-        "name": "Caled Flores",
-        "email": "caled.flores@gmail.com"
-    },
-    {
-        "id": 2,
-        "name": "Iris Villela",
-        "email": "iris.villela@gmail.com"
-    }
+  {
+    "id": 1,
+    "name": "Caled Flores",
+    "email": "caled.flores@gmail.com"
+  },
+  {
+    "id": 2,
+    "name": "Iris Villela",
+    "email": "iris.villela@gmail.com"
+  },
+  {
+    "id": 3,
+    "name": "Ana",
+    "email": "ana@gmail.com"
+  }
 ]
