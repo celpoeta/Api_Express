@@ -142,6 +142,111 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
+
+// Ruta PUT /api/users/:id
+// Objetivo: reemplazar COMPLETAMENTE un usuario existente en el archivo users.json
+app.put('/api/users/:id', async (req, res) => {
+    try {
+        // Obtenemos el parámetro id de la URL y lo convertimos a número
+        const userId = Number(req.params.id);
+
+        // Extraemos los datos enviados por el cliente desde el body
+        // Notas:
+        // - 'name' se toma directamente.
+        // - 'email' se convierte a minúsculas para evitar duplicados por mayúsculas/minúsculas.
+        const name = req.body.name;
+        const email = req.body.email.toLowerCase();
+
+        // Validamos que los campos obligatorios existan
+        // PUT exige que vengan todos los campos necesarios
+        if (!name || !email) {
+            return res.status(400).json({ error: 'name y email son requeridos para actualizar' });
+        }
+
+        // Leemos el archivo users.json como texto
+        const data = await fs.readFile(userPath, 'utf8');
+
+        // Parseamos el contenido a un arreglo de usuarios
+        const users = JSON.parse(data);
+
+        // Buscamos el índice del usuario cuyo id coincida con userId
+        const userIndex = users.findIndex(user => user.id === userId);
+
+        // Si no existe, devolvemos error 404
+        if (userIndex === -1) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // Reemplazamos completamente el objeto del usuario
+        users[userIndex] = { id: userId, name, email };
+
+        // Guardamos (reescribimos) el archivo users.json con la lista actualizada
+        await fs.writeFile(userPath, JSON.stringify(users, null, 2));
+
+        // Respondemos con el usuario actualizado
+        res.json(users[userIndex]);
+    } catch (error) {
+        // Si ocurre un error en cualquier parte del proceso (leer/escribir archivo, JSON inválido, etc.)
+        console.error('Error al leer el archivo desde el PUT');
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+
+// Ruta PATCH /api/users/:id
+// Objetivo: actualizar SOLO algunos campos de un usuario existente en el archivo users.json
+app.patch('/api/users/:id', async (req, res) => {
+    try {
+        // Obtenemos el parámetro id de la URL y lo convertimos a número
+        const userId = Number(req.params.id);
+
+        // Extraemos los datos enviados por el cliente en el body (opcionales en PATCH)
+        const name = req.body.name;
+        const email = req.body.email;
+
+        // Validamos que al menos se envíe un campo
+        if (!name && !email) {
+            return res.status(400).json({ error: 'Debe enviar al menos un campo para actualizar (name o email)' });
+        }
+
+        // Leemos el archivo users.json como texto
+        const data = await fs.readFile(userPath, 'utf8');
+
+        // Parseamos el contenido a un arreglo de usuarios
+        const users = JSON.parse(data);
+
+        // Buscamos al usuario cuyo id coincida con userId
+        const user = users.find(user => user.id === userId);
+
+        // Si no existe, devolvemos error 404
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // IMPORTANTE:
+        // "user" no es una copia, sino una REFERENCIA al objeto dentro del arreglo "users".
+        // Por lo tanto, si modificamos "user", también se modifica el arreglo "users".
+        // Ejemplo:
+        //   user.name = "Nuevo"  →  users ya tiene ese cambio internamente.
+        if (typeof name === 'string' && name.trim() !== '') {
+            user.name = name;
+        }
+        if (typeof email === 'string' && email.trim() !== '') {
+            user.email = email;
+        }
+
+        // Guardamos el archivo users.json con el usuario ya modificado
+        await fs.writeFile(userPath, JSON.stringify(users, null, 2));
+
+        // Respondemos con el usuario modificado
+        res.json(user);
+    } catch (error) {
+        // Si ocurre un error en cualquier parte del proceso (leer/escribir archivo, JSON inválido, etc.)
+        console.error('Error al leer el archivo desde el PATCH');
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 // ---------------------- LEVANTAR SERVIDOR ---------------------- //
 
 // Iniciamos el servidor en el puerto indicado
