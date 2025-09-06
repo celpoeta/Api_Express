@@ -3,7 +3,7 @@
 // Captura cualquier error que ocurra en el flujo de la aplicación
 export function errorHandler(error, _req, res, _next) {
     // Mostramos el error en la consola del servidor (útil para depuración)
-    console.error("Error");
+    console.error(error.message);
 
     // Determinamos el código de estado HTTP:
     // - Si el error trae una propiedad "statusCode", usamos esa.
