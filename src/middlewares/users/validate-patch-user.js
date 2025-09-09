@@ -19,7 +19,5 @@ export function validatePatchUser(req, res, next) {
             error: 'Debe enviar al menos un campo (name o email)'
         });
     }
-
-    // Si al menos uno de los dos campos es válido, seguimos con el siguiente middleware o controller
     next();
 }

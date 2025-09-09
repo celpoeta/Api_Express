@@ -5,15 +5,20 @@ import { validateId } from '../middlewares/users/validate-id.js';
 import { validateUserBody } from '../middlewares/users/validate-user-body.js';
 import { normalizeUserBody } from '../middlewares/users/normalize-user-body.js';
 import { validatePatchUser } from '../middlewares/users/validate-patch-user.js';
+import { validateEmail } from '../middlewares/users/validate-email.js';
 import { ensureUniqueEmail } from '../middlewares/users/ensure-unique-email.js';
 
 // Controllers
-import { getUsers, getUserById, createUser } from '../controllers/users.controller.js'
+import { getUsers, getUserById, createUser, replaceUser, updateUser, deleteUser } from '../controllers/users.controller.js'
 
 const router = Router();
 
 router.get('/', getUsers);
 router.get('/:id', validateId, getUserById);
-router.post('/', validateUserBody, normalizeUserBody, ensureUniqueEmail, createUser);
+router.post('/', validateUserBody, normalizeUserBody, ensureUniqueEmail, validateEmail, createUser);
+router.put('/:id', validateId, validateUserBody, normalizeUserBody, ensureUniqueEmail, validateEmail, replaceUser);
+router.patch('/:id', validateId, validatePatchUser, ensureUniqueEmail, validateEmail, updateUser);
+router.delete('/:id', validateId, deleteUser);
+
 
 export default router;
