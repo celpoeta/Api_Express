@@ -1,20 +1,8 @@
 // Importamos las librerías necesarias
 import express from 'express'; // Framework de tercero para crear el servidor y manejar rutas HTTP
-import fs from 'node:fs/promises'; // Módulo nativo para trabajar con archivos de forma asíncrona usando Promesas
-import path from 'node:path'; // Módulo nativo para manejar rutas de archivos y carpetas
 import { errorHandler } from './middlewares/error-handler.js';
-import { validateId } from './middlewares/users/validate-id.js';
-import { validateUserBody } from './middlewares/users/validate-user-body.js';
-import { normalizeUserBody } from './middlewares/users/normalize-user-body.js';
-import { validatePatchUser } from './middlewares/users/validate-patch-user.js';
-import { ensureUniqueEmail } from './middlewares/users/ensure-unique-email.js';
 
 import userRouter from './routes/users.routes.js'
-
-
-// Definimos la ruta del archivo JSON donde tenemos a nuestros usuarios
-// OJO: esta es una ruta relativa, funciona siempre que ejecutemos node desde la raíz del proyecto (mas adelante lo haremos mas robusto)
-const userPath = path.join('data', 'users.json');
 
 // Creamos la aplicación de Express
 const app = express();
