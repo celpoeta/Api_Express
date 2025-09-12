@@ -1,5 +1,6 @@
 import { readUsers, writeUsers } from '../utils/userFile.js';
 import * as userService from '../services/users.service.js';
+import { Prisma } from '@prisma/client';
 
 
 // Ruta GET /api/users
@@ -43,6 +44,11 @@ export async function createUser(req, res, next) {
         // Respondemos con estado 201 (Created) y el usuario que fue creado
         res.status(201).json({ message: 'Usuario creado con éxito', newUser });
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+                return res.status(409).json({ error: 'Email ya está registrado' });
+            }
+        }
         next(error);
     }
 }
@@ -63,6 +69,15 @@ export async function replaceUser(req, res, next) {
         // Respondemos con el usuario actualizado
         res.json(replace);
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            console.log(error.code);
+            if (error.code === "P2002") {
+                return res.status(409).json({ error: 'Email ya está registrado' });
+            }
+            if (error.code === "P2025") {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+        }
         next(error);
     }
 }

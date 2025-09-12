@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 // Definimos el puerto donde correrá el servidor
-const PORT = 3010;
+const PORT = process.env.PORT || 3000;
 
 // ---------------------- RUTAS ---------------------- //
 
